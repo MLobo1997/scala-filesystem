@@ -1,6 +1,7 @@
-package com.mlobo.scala.filesystem
+package com.mlobo
+package filesystem
 
-import com.mlobo.scala.files.{DirEntry, Directory}
+import files.{DirEntry, Directory}
 
 import scala.util.{Failure, Success}
 

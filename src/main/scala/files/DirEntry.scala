@@ -1,3 +1,4 @@
-package com.mlobo.scala.files
+package com.mlobo
+package files
 
 abstract class DirEntry(val parentPath: String, val name: String) {}

@@ -1,6 +1,8 @@
-package com.mlobo.scala.commands
-import com.mlobo.scala.files.Directory
-import com.mlobo.scala.filesystem.State
+package com.mlobo
+package commands
+
+import files.Directory
+import filesystem.State
 
 class Mkdir(name: String) extends Command {
 

@@ -1,4 +1,5 @@
-package com.mlobo.scala.files
+package com.mlobo
+package files
 
 import scala.annotation.tailrec
 import scala.util.{Failure, Success, Try}

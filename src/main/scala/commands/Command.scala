@@ -1,6 +1,7 @@
-package com.mlobo.scala.commands
+package com.mlobo
+package commands
 
-import com.mlobo.scala.filesystem.State
+import filesystem.State
 
 trait Command {
   def apply(state: State): State

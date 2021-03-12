@@ -1,7 +1,8 @@
-package com.mlobo.scala.filesystem
+package com.mlobo
+package filesystem
 
-import com.mlobo.scala.commands.Command
-import com.mlobo.scala.files.Directory
+import commands.Command
+import files.Directory
 
 import java.util.Scanner
 
