@@ -7,6 +7,26 @@ trait Command {
 }
 
 object Command {
-  def from(input: String): Command =
-    new UnknownCommand
+  val MKDIR = "mkdir"
+
+  def from(input: String): Command = {
+    val tokens: Array[String] = input.split(" ")
+    if (input.isEmpty) emptyCommand
+    tokens match {
+      case t if t.isEmpty => emptyCommand
+      case t @ Array(MKDIR, _*) =>
+        t match {
+          case Array(_)       => incompleteCommand(MKDIR)
+          case Array(_, name) => new Mkdir(name)
+          case _              => ???
+        }
+      case _ => new UnknownCommand
+    }
+  }
+
+  def emptyCommand: Command = (state: State) => state
+
+  def incompleteCommand(name: String): Command =
+    (state: State) => state.setMessage(s"$name is missing arguments.")
+
 }
