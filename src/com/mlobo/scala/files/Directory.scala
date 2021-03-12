@@ -42,15 +42,25 @@ class Directory(
       relativeParentPath: String,
       name: String
   ): Try[DirEntry] = {
-    def aux(currentDir: Directory, pathList: List[String]): Try[DirEntry] =
-      pathList match {
-        case Nil =>
-          if (name.nonEmpty) currentDir.getEntry(name) else Success(currentDir)
-        case ::(nextDir, tail) =>
-          currentDir.getDirectory(nextDir).flatMap(d => aux(d, tail))
+    @tailrec
+    def aux(
+        maybeCurrentDir: Try[Directory],
+        pathList: List[String]
+    ): Try[DirEntry] = {
+      maybeCurrentDir match {
+        case Success(currentDir) =>
+          pathList match {
+            case Nil =>
+              if (name.nonEmpty) currentDir.getEntry(name)
+              else Success(currentDir)
+            case ::(nextDir, tail) =>
+              aux(currentDir.getDirectory(nextDir), tail)
+          }
+        case fail @ Failure(_) => fail
       }
+    }
 
-    aux(this, relativeParentPath.split("/").filter(_.nonEmpty).toList)
+    aux(Success(this), relativeParentPath.split("/").filter(_.nonEmpty).toList)
   }
 
   def addEntryWithPath(newEntry: DirEntry, dirPath: String): Try[Directory] = {
