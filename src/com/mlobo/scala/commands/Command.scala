@@ -18,7 +18,7 @@ object Command {
         t match {
           case Array(_)       => incompleteCommand(MKDIR)
           case Array(_, name) => new Mkdir(name)
-          case _              => ???
+          case _              => wrongNumberOfArgs(1)
         }
       case _ => new UnknownCommand
     }
@@ -28,5 +28,9 @@ object Command {
 
   def incompleteCommand(name: String): Command =
     (state: State) => state.setMessage(s"$name is missing arguments.")
+
+  def wrongNumberOfArgs(expectedNumber: Int): Command =
+    (state: State) =>
+      state.setMessage(s"Expected exactly $expectedNumber arguments")
 
 }
