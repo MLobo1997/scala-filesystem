@@ -2,7 +2,7 @@ package com.mlobo.scala.filesystem
 
 import com.mlobo.scala.files.{DirEntry, Directory}
 
-import scala.util.{Failure, Success, Try}
+import scala.util.{Failure, Success}
 
 class State(val root: Directory, val wd: Directory, val output: String) {
   def show(): Unit = {
@@ -16,7 +16,11 @@ class State(val root: Directory, val wd: Directory, val output: String) {
   def addEntryToDirectoryTree(entry: DirEntry, fullPath: String): State = {
     root.addEntryWithPath(entry, fullPath) match {
       case Success(newRoot) =>
-        State(newRoot, wd, output = s"Added ${entry.name}")
+        State(
+          newRoot,
+          newRoot.getDirectoryWithPath(wd.fullpath, wd.name).get,
+          output = s"Added ${entry.name}"
+        )
       case Failure(exception) =>
         State(root, wd, output = exception.getMessage)
     }

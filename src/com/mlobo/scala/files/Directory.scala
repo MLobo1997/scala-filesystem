@@ -13,6 +13,46 @@ class Directory(
   def hasEntry(name: String): Boolean =
     contents.exists((entry: DirEntry) => entry.name.equals(name))
 
+  def getDirectoryWithPath(
+      relativeParentPath: String,
+      name: String
+  ): Try[Directory] =
+    getEntryWithPath(relativeParentPath, name) match {
+      case Success(dir: Directory) => Success(dir)
+      case Success(entry) =>
+        Failure(new RuntimeException(s"${entry.name} is not a directory"))
+      case Failure(exception) => Failure(exception)
+    }
+
+  def getDirectory(name: String): Try[Directory] =
+    getEntry(name)
+      .flatMap {
+        case directory: Directory => Success(directory)
+        case _ =>
+          Failure(new RuntimeException(s"$name is not a directory"))
+      }
+
+  def getEntry(name: String): Try[DirEntry] =
+    contents
+      .find(_.name == name)
+      .map(Success(_))
+      .getOrElse(Failure(new RuntimeException(s"$name: no such entry")))
+
+  def getEntryWithPath(
+      relativeParentPath: String,
+      name: String
+  ): Try[DirEntry] = {
+    def aux(currentDir: Directory, pathList: List[String]): Try[DirEntry] =
+      pathList match {
+        case Nil =>
+          if (name.nonEmpty) currentDir.getEntry(name) else Success(currentDir)
+        case ::(nextDir, tail) =>
+          currentDir.getDirectory(nextDir).flatMap(d => aux(d, tail))
+      }
+
+    aux(this, relativeParentPath.split("/").filter(_.nonEmpty).toList)
+  }
+
   def addEntryWithPath(newEntry: DirEntry, dirPath: String): Try[Directory] = {
     @tailrec
     def listFullDirectoriesPath(
@@ -23,21 +63,18 @@ class Directory(
       path match {
         case Nil | "." :: Nil => Success(this :: fullEntriesPath)
         case ::(nextDir, pathTail) =>
-          val nextPath: Option[DirEntry] =
-            currentDir.contents.find(_.name.equals(nextDir))
+          val nextPath: Try[DirEntry] =
+            currentDir.getEntry(nextDir)
           nextPath match {
-            case Some(directory: Directory) =>
+            case Success(directory: Directory) =>
               listFullDirectoriesPath(
                 directory,
                 pathTail,
                 currentDir :: fullEntriesPath
               )
-            case Some(entry: DirEntry) =>
+            case Success(entry: DirEntry) =>
               Failure(new RuntimeException(s"${entry.name} is not a directory"))
-            case None =>
-              Failure(
-                new RuntimeException(s"$nextDir: no such directory/entry.")
-              )
+            case Failure(e) => Failure(e)
           }
       }
     }
@@ -81,19 +118,18 @@ class Directory(
     Directory(parentPath, name, newContents)
 
   def updateEntry(newEntry: DirEntry): Try[Directory] = {
-    val maybeEntry = contents.find(_.name == newEntry.name)
+    val maybeEntry = getEntry(newEntry.name)
     maybeEntry match {
-      case Some(e) if e.getClass.equals(newEntry.getClass) =>
+      case Success(e) if e.getClass.equals(newEntry.getClass) =>
         val newContents = newEntry :: contents.filterNot(e.equals)
         Success(Directory(parentPath, name, newContents))
-      case Some(e) =>
+      case Success(e) =>
         Failure(
           new RuntimeException(
             s"You are trying to replace a ${e.getClass} with a ${newEntry.getClass}"
           )
         )
-      case None =>
-        Failure(new RuntimeException(s"Entry ${newEntry.name} does not exist"))
+      case Failure(e) => Failure(e)
     }
   }
 }

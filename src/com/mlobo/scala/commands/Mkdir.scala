@@ -12,12 +12,6 @@ class Mkdir(name: String) extends Command {
 
   def apply(state: State): State = {
     val wd = state.wd
-    if (wd.hasEntry(name)) {
-      state.setMessage(s"Entry $name already exists!")
-    } else if (name.contains(Directory.SEPARATOR)) {} else if (
-      checkIllegal(name)
-    ) {} else {}
-
     (wd, name) match {
       case (wd, name) if wd.hasEntry(name) =>
         state.setMessage(s"Entry $name already exists!")
