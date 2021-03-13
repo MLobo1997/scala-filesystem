@@ -9,7 +9,7 @@ class Mkdir(name: String) extends Command {
   def doMkdir(state: State, name: String): State = {
     val wd = state.wd
     val newDir = Directory.empty(wd.fullpath, name)
-    state.addEntryToDirectoryTree(newDir, newDir.fullpath)
+    state.addEntryToDirectoryTree(newDir)
   }
 
   def apply(state: State): State = {

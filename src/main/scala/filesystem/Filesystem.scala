@@ -8,7 +8,7 @@ import java.util.Scanner
 
 object Filesystem extends App {
   val root = Directory.ROOT
-  var state = State(root, root) //vars is only for
+  var state = State.clean //vars is only for
   val scanner = new Scanner(System.in)
 
   while (true) {

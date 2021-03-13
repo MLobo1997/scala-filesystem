@@ -14,8 +14,8 @@ class State(val root: Directory, val wd: Directory, val output: String) {
   def setMessage(message: String): State =
     State(root, wd, message)
 
-  def addEntryToDirectoryTree(entry: DirEntry, fullPath: String): State = {
-    root.addEntryWithPath(entry, fullPath) match {
+  def addEntryToDirectoryTree(entry: DirEntry): State = {
+    root.addEntryWithPath(entry, entry.fullpath) match {
       case Success(newRoot) =>
         State(
           newRoot,
@@ -30,6 +30,9 @@ class State(val root: Directory, val wd: Directory, val output: String) {
 
 object State {
   val SHELL_TOKEN = "$ "
+
+  def clean: State =
+    State(Directory.ROOT, Directory.ROOT)
 
   def apply(root: Directory, wd: Directory, output: String = ""): State =
     new State(root, wd, output)

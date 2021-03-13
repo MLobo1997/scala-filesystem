@@ -9,7 +9,6 @@ class Directory(
     override val name: String,
     val contents: List[DirEntry]
 ) extends DirEntry(parentPath, name) {
-  def fullpath: String = s"$parentPath${Directory.SEPARATOR}$name"
 
   def hasEntry(name: String): Boolean =
     contents.exists((entry: DirEntry) => entry.name.equals(name))
@@ -18,11 +17,10 @@ class Directory(
       relativeParentPath: String,
       name: String
   ): Try[Directory] =
-    getEntryWithPath(relativeParentPath, name) match {
-      case Success(dir: Directory) => Success(dir)
-      case Success(entry) =>
+    getEntryWithPath(relativeParentPath, name).flatMap {
+      case dir: Directory => Success(dir)
+      case entry =>
         Failure(new RuntimeException(s"${entry.name} is not a directory"))
-      case Failure(exception) => Failure(exception)
     }
 
   def getDirectory(name: String): Try[Directory] =
@@ -130,17 +128,16 @@ class Directory(
 
   def updateEntry(newEntry: DirEntry): Try[Directory] = {
     val maybeEntry = getEntry(newEntry.name)
-    maybeEntry match {
-      case Success(e) if e.getClass.equals(newEntry.getClass) =>
-        val newContents = newEntry :: contents.filterNot(e.equals)
+    maybeEntry.flatMap {
+      case entry if entry.getClass.equals(newEntry.getClass) =>
+        val newContents = newEntry :: contents.filterNot(entry.equals)
         Success(Directory(parentPath, name, newContents))
-      case Success(e) =>
+      case entry =>
         Failure(
           new RuntimeException(
-            s"You are trying to replace a ${e.getClass} with a ${newEntry.getClass}"
+            s"You are trying to replace a ${entry.getClass} with a ${newEntry.getClass}"
           )
         )
-      case Failure(e) => Failure(e)
     }
   }
 }
