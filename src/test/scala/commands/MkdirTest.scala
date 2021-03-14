@@ -3,9 +3,8 @@ package commands
 
 import filesystem.State
 
-import com.mlobo.files.Directory
-import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.TryValues._
+import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers.convertToAnyShouldWrapper
 
 class MkdirTest extends AnyFunSuite {

@@ -9,6 +9,7 @@ trait Command {
 
 object Command {
   val MKDIR = "mkdir"
+  val LS = "ls"
 
   def from(input: String): Command = {
     val tokens: Array[String] = input.split(" ")
@@ -20,6 +21,11 @@ object Command {
           case Array(_)       => incompleteCommand(MKDIR)
           case Array(_, name) => new Mkdir(name)
           case _              => wrongNumberOfArgs(1)
+        }
+      case t @ Array(LS, _*) =>
+        t match {
+          case Array(_)     => new Ls
+          case Array(_, _*) => wrongNumberOfArgs(0)
         }
       case _ => new UnknownCommand
     }
