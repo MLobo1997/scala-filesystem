@@ -11,6 +11,7 @@ object Command {
   val MKDIR = "mkdir"
   val LS = "ls"
   val CD = "cd"
+  val PWD = "pwd"
 
   def from(input: String): Command = {
     val tokens: Array[String] = input.split(" ")
@@ -33,6 +34,11 @@ object Command {
           case Array(_)       => incompleteCommand(CD)
           case Array(_, name) => new Cd(name)
           case _              => wrongNumberOfArgs(1)
+        }
+      case t @ Array(PWD, _*) =>
+        t match {
+          case Array(_)     => new Pwd
+          case Array(_, _*) => wrongNumberOfArgs(0)
         }
       case _ => new UnknownCommand
     }
