@@ -70,7 +70,7 @@ class Directory(
         fullEntriesPath: List[Directory]
     ): Try[List[Directory]] = {
       path match {
-        case Nil | "." :: Nil => Success(this :: fullEntriesPath)
+        case Nil | "." :: Nil => Success(currentDir :: fullEntriesPath)
         case ::(nextDir, pathTail) =>
           val nextPath: Try[DirEntry] =
             currentDir.getEntry(nextDir)
