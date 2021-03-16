@@ -28,7 +28,7 @@ class PathTest extends AnyFunSuite {
   test("path.toString") {
     assert(Path("/test/coiso").toString == "/test/coiso")
     assert(Path("test/coiso").toString == "./test/coiso")
-    assert(Path("").toString == ".")
+    assert(Path("").toString == "/")
   }
 
   test("test.absolutePath") {

@@ -2,8 +2,7 @@ package com.mlobo
 package commands
 
 import filesystem.State
-
-import com.mlobo.utils.Path
+import utils.Path
 
 trait Command {
   def apply(state: State): State
@@ -24,7 +23,7 @@ object Command {
       case t @ Array(MKDIR, _*) =>
         t match {
           case Array(_)       => incompleteCommand(MKDIR)
-          case Array(_, name) => new Mkdir(name)
+          case Array(_, path) => new Mkdir(Path(path))
           case _              => wrongNumberOfArgs(1)
         }
       case t @ Array(LS, _*) =>

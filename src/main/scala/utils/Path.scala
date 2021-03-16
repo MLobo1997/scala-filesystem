@@ -1,7 +1,13 @@
 package com.mlobo
 package utils
 
-import utils.Path.{CURRENT_PATH, PARENT_PATH, ROOT_PATH, SEPARATOR}
+import utils.Path.{
+  CURRENT_PATH,
+  PARENT_PATH,
+  ROOT_PATH,
+  SEPARATOR,
+  fromStringToList
+}
 
 import scala.annotation.tailrec
 import scala.util.matching.Regex
@@ -9,7 +15,7 @@ import scala.util.matching.Regex
 class Path(val listedPath: List[String], val base: String) {
   def join(path: String): Path = {
     val newListedPath: List[String] =
-      if (path.nonEmpty) listedPath :+ path else listedPath
+      if (path.nonEmpty) listedPath ++ fromStringToList(path) else listedPath
     new Path(newListedPath, base)
   }
 
@@ -51,8 +57,11 @@ object Path {
 
   def apply(string: String): Path = {
     val basePath: String =
-      if (ROOT_PATTERN.matches(string)) ROOT_PATH else CURRENT_PATH
-    Path(string.split(SEPARATOR).filter(_.nonEmpty).toList, basePath)
+      if (ROOT_PATTERN.matches(string) || string.isEmpty) ROOT_PATH
+      else CURRENT_PATH
+    Path(fromStringToList(string), basePath)
   }
 
+  def fromStringToList(string: String): List[String] =
+    string.split(SEPARATOR).filter(_.nonEmpty).toList
 }
