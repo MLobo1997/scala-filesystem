@@ -1,7 +1,8 @@
 package com.mlobo
 package commands
 
-import com.mlobo.filesystem.State
+import filesystem.State
+
 import org.scalatest.funsuite.AnyFunSuite
 
 class CommandsTest extends AnyFunSuite {

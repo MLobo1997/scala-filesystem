@@ -8,7 +8,7 @@ import scala.util.{Failure, Success}
 class State(val root: Directory, val wd: Directory, val output: String) {
   def show(): Unit = {
     println(output)
-    print(State.SHELL_TOKEN)
+    print(s"${wd.fullpath} ${State.SHELL_TOKEN}")
   }
 
   def setMessage(message: String): State =
