@@ -15,7 +15,7 @@ class State(val root: Directory, val wd: Directory, val output: String) {
     State(root, wd, message)
 
   def addEntryToDirectoryTree(entry: DirEntry): State = {
-    root.addEntryWithPath(entry, entry.fullpath) match {
+    root.addEntryInRelativePath(entry) match {
       case Success(newRoot) =>
         State(
           newRoot,

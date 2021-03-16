@@ -62,7 +62,7 @@ class Directory(
     aux(Success(this), relativeParentPath.split("/").filter(_.nonEmpty).toList)
   }
 
-  def addEntryWithPath(newEntry: DirEntry, dirPath: String): Try[Directory] = {
+  def addEntryInRelativePath(newEntry: DirEntry): Try[Directory] = {
     @tailrec
     def listFullDirectoriesPath(
         currentDir: Directory,
@@ -104,7 +104,7 @@ class Directory(
       }
 
     val pathList: List[String] =
-      dirPath.split("/").filter(_.nonEmpty).init.toList
+      newEntry.parentPath.split("/").filter(_.nonEmpty).toList
     val reversedListOfDirsAttempt: Try[List[Directory]] =
       listFullDirectoriesPath(this, pathList, List())
 
