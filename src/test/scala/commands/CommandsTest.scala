@@ -3,6 +3,7 @@ package commands
 
 import filesystem.State
 
+import com.mlobo.utils.Path
 import org.scalatest.funsuite.AnyFunSuite
 
 class CommandsTest extends AnyFunSuite {
@@ -11,7 +12,7 @@ class CommandsTest extends AnyFunSuite {
     assert(new Ls()(s1).output.isEmpty)
     val s2 = new Mkdir("test")(s1)
     assert(new Ls()(s2).output.contains("test"))
-    val s3 = new Cd("test")(s2)
+    val s3 = new Cd(Path("test"))(s2)
     assert(new Ls()(s3).output.isEmpty)
     val s4 = new Touch("newFile")(new Mkdir("newDir")(s3))
     val output = new Ls()(s4).output

@@ -1,8 +1,23 @@
 package com.mlobo
 package utils
 
+import utils.Path.SEPARATOR
+
 class Path(val listedPath: List[String], val basePath: Char) {
-  def join(path: String): Path = new Path(listedPath :+ path, basePath)
+  def join(path: String): Path = {
+    val newListedPath: List[String] =
+      if (path.nonEmpty) listedPath :+ path else listedPath
+    new Path(newListedPath, basePath)
+  }
+
+  def getParent: Path = Path(listedPath.init, basePath)
+
+  def getLast: String = listedPath.last
+
+  override def toString: String =
+    listedPath.foldLeft(basePath.toString)((a, b) =>
+      if (a != SEPARATOR.toString) a + SEPARATOR + b else a + b
+    )
 }
 
 object Path {

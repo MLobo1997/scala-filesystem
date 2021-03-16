@@ -24,4 +24,10 @@ class PathTest extends AnyFunSuite {
     val p1 = Path("/test").join("coiso")
     assert(p1.basePath == '/' && p1.listedPath.equals(List("test", "coiso")))
   }
+
+  test("path.toString") {
+    assert(Path("/test/coiso").toString == "/test/coiso")
+    assert(Path("test/coiso").toString == "./test/coiso")
+    assert(Path("").toString == ".")
+  }
 }

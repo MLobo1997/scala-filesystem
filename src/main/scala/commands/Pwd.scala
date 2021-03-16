@@ -4,5 +4,5 @@ import filesystem.State
 
 class Pwd extends Command {
   def apply(state: State): State =
-    state.setMessage(state.wd.fullpath)
+    state.setMessage(state.wd.fullpath.toString)
 }

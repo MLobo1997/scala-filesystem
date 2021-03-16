@@ -1,11 +1,13 @@
 package com.mlobo
 package files
 
+import com.mlobo.utils.Path
+
 import scala.annotation.tailrec
 import scala.util.{Failure, Success, Try}
 
 class Directory(
-    override val parentPath: String,
+    override val parentPath: Path,
     override val name: String,
     val contents: List[DirEntry]
 ) extends DirEntry(parentPath, name) {
@@ -17,7 +19,7 @@ class Directory(
     getDirectoryWithRelativePath(dir.parentPath, dir.name)
 
   def getDirectoryWithRelativePath(
-      relativeParentPath: String,
+      relativeParentPath: Path,
       name: String
   ): Try[Directory] =
     getEntryWithPath(relativeParentPath, name).flatMap {
@@ -41,7 +43,7 @@ class Directory(
       .getOrElse(Failure(new RuntimeException(s"$name: no such entry")))
 
   def getEntryWithPath(
-      relativeParentPath: String,
+      relativeParentPath: Path,
       name: String
   ): Try[DirEntry] = {
     @tailrec
@@ -62,7 +64,7 @@ class Directory(
       }
     }
 
-    aux(Success(this), relativeParentPath.split("/").filter(_.nonEmpty).toList)
+    aux(Success(this), relativeParentPath.listedPath)
   }
 
   def addEntryInRelativePath(newEntry: DirEntry): Try[Directory] = {
@@ -106,10 +108,8 @@ class Directory(
           )
       }
 
-    val pathList: List[String] =
-      newEntry.parentPath.split("/").filter(_.nonEmpty).toList
     val reversedListOfDirsAttempt: Try[List[Directory]] =
-      listFullDirectoriesPath(this, pathList, List())
+      listFullDirectoriesPath(this, newEntry.parentPath.listedPath, List())
 
     reversedListOfDirsAttempt.flatMap(reversedListOfDirs =>
       updateChainOfDirectories(
@@ -149,13 +149,13 @@ object Directory {
   val SEPARATOR = "/"
   val ROOT_PATH = "/"
 
-  def ROOT: Directory = Directory.empty("", "")
+  def ROOT: Directory = Directory.empty(Path(""), "")
 
-  def empty(parentPath: String, name: String): Directory =
+  def empty(parentPath: Path, name: String): Directory =
     Directory(parentPath, name, List())
 
   def apply(
-      parentPath: String,
+      parentPath: Path,
       name: String,
       contents: List[DirEntry]
   ): Directory =

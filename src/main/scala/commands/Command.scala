@@ -3,6 +3,8 @@ package commands
 
 import filesystem.State
 
+import com.mlobo.utils.Path
+
 trait Command {
   def apply(state: State): State
 }
@@ -33,7 +35,7 @@ object Command {
       case t @ Array(CD, _*) =>
         t match {
           case Array(_)       => incompleteCommand(CD)
-          case Array(_, name) => new Cd(name)
+          case Array(_, name) => new Cd(Path(name))
           case _              => wrongNumberOfArgs(1)
         }
       case t @ Array(PWD, _*) =>
