@@ -1,9 +1,10 @@
 package com.mlobo
 package commands
 
-import com.mlobo.files.Directory
-import com.mlobo.filesystem.State
-import com.mlobo.utils.Path
+import files.Directory
+import filesystem.State
+import utils.Path
+
 import org.scalatest.funsuite.AnyFunSuite
 
 class LsTest extends AnyFunSuite {

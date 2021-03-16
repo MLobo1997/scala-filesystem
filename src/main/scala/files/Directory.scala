@@ -1,7 +1,7 @@
 package com.mlobo
 package files
 
-import com.mlobo.utils.Path
+import utils.Path
 
 import scala.annotation.tailrec
 import scala.util.{Failure, Success, Try}

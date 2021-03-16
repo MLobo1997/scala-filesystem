@@ -1,8 +1,7 @@
 package com.mlobo
 package commands
 import filesystem.State
-
-import com.mlobo.utils.Path
+import utils.Path
 
 import scala.util.{Failure, Success}
 
