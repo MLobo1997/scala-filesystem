@@ -19,11 +19,11 @@ class State(val root: Directory, val wd: Directory, val output: String) {
       case Success(newRoot) =>
         State(
           newRoot,
-          newRoot.getDirectoryWithPath(wd.parentPath, wd.name).get,
+          newRoot.getDirectoryWithRelativePath(wd).get,
           output = s"Added ${entry.name}"
         )
       case Failure(exception) =>
-        State(root, wd, output = exception.getMessage)
+        setMessage(exception.getMessage)
     }
   }
 }

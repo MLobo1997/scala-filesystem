@@ -13,7 +13,10 @@ class Directory(
   def hasEntry(name: String): Boolean =
     contents.exists((entry: DirEntry) => entry.name.equals(name))
 
-  def getDirectoryWithPath(
+  def getDirectoryWithRelativePath(dir: Directory): Try[Directory] =
+    getDirectoryWithRelativePath(dir.parentPath, dir.name)
+
+  def getDirectoryWithRelativePath(
       relativeParentPath: String,
       name: String
   ): Try[Directory] =

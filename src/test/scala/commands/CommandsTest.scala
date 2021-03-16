@@ -12,8 +12,11 @@ class CommandsTest extends AnyFunSuite {
     assert(new Ls()(s2).output.contains("test"))
     val s3 = new Cd("test")(s2)
     assert(new Ls()(s3).output.isEmpty)
-    val s4 = new Mkdir("newDir")(s3)
+    val s4 = new Touch("newFile")(new Mkdir("newDir")(s3))
     val output = new Ls()(s4).output
-    assert(output.contains("newDir") && !output.contains("test"))
+    assert(
+      output.contains("newDir") && output.contains("newFile") && !output
+        .contains("test")
+    )
   }
 }
