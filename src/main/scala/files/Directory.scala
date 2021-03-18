@@ -16,13 +16,12 @@ class Directory(
     contents.exists((entry: DirEntry) => entry.name.equals(name))
 
   def getDirectoryWithRelativePath(dir: Directory): Try[Directory] =
-    getDirectoryWithRelativePath(dir.parentPath, dir.name)
+    getDirectoryWithRelativePath(dir.fullpath)
 
   def getDirectoryWithRelativePath(
-      relativeParentPath: Path,
-      name: String
+      relativePath: Path
   ): Try[Directory] =
-    getEntryWithPath(relativeParentPath, name).flatMap {
+    getEntryWithPath(relativePath, "").flatMap {
       case dir: Directory => Success(dir)
       case entry =>
         Failure(new RuntimeException(s"${entry.name} is not a directory"))
@@ -43,7 +42,7 @@ class Directory(
       .getOrElse(Failure(new RuntimeException(s"$name: no such entry")))
 
   def getEntryWithPath(
-      relativeParentPath: Path,
+      relativePath: Path,
       name: String
   ): Try[DirEntry] = {
     @tailrec
@@ -64,7 +63,7 @@ class Directory(
       }
     }
 
-    aux(Success(this), relativeParentPath.listedPath)
+    aux(Success(this), relativePath.listedPath)
   }
 
   def addEntryInRelativePath(newEntry: DirEntry): Try[Directory] = {

@@ -23,4 +23,13 @@ class CommandsTest extends AnyFunSuite {
     val s5 = new Mkdir(Path("../relativeDir"))(s4)
     assert(s5.root.getDirectory("relativeDir").isSuccess)
   }
+
+  test("Mkdir and cd") {
+    val s1 = new Mkdir(Path("t1/t2"))(new Mkdir(Path("t1"))(State.clean))
+    assert(new Ls()(s1).output.contains("t1"))
+    val s2 = new Cd(Path("t1/t2"))(s1)
+    assert(new Ls()(s2).output.isEmpty)
+    val s3 = new Cd(Path("../.."))(s2)
+    assert(new Ls()(s3).output.contains("t1"))
+  }
 }
