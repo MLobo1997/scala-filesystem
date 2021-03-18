@@ -8,27 +8,33 @@ class PathTest extends AnyFunSuite {
     assert(Path("").listedPath equals List())
 
     val p1 = Path("/")
-    assert(p1.listedPath.equals(List()) && p1.base == "/")
+    assert(p1.listedPath.equals(List()) && p1.isRoot)
 
     val p2 = Path("/test")
-    assert(p2.listedPath.equals(List("test")) && p2.base == "/")
+    assert(p2.listedPath.equals(List("test")) && p2.isRoot)
 
     val p3 = Path("/test/t2")
-    assert(p3.listedPath.equals(List("test", "t2")) && p3.base == "/")
+    assert(p3.listedPath.equals(List("test", "t2")) && p3.isRoot)
 
     val p4 = Path("test/t2")
-    assert(p4.listedPath.equals(List("test", "t2")) && p4.base == ".")
+    assert(p4.listedPath.equals(List("test", "t2")) && !p4.isRoot)
   }
 
   test("path.join") {
     val p1 = Path("/test").join("coiso")
-    assert(p1.base == "/" && p1.listedPath.equals(List("test", "coiso")))
+    assert(p1.isRoot && p1.listedPath.equals(List("test", "coiso")))
+
+    val p2 = Path("/test").join("")
+    assert(p2.isRoot && p2.listedPath.equals(List("test")))
+
+    val p3 = Path("/test").join("/coiso")
+    assert(p3.isRoot && p3.listedPath.equals(List("coiso")))
   }
 
   test("path.toString") {
     assert(Path("/test/coiso").toString == "/test/coiso")
-    assert(Path("test/coiso").toString == "./test/coiso")
-    assert(Path("").toString == "/")
+    assert(Path("test/coiso").toString == "test/coiso")
+    assert(Path("").toString == ".")
   }
 
   test("test.absolutePath") {

@@ -5,26 +5,26 @@ import utils.Path.{
   CURRENT_PATH,
   PARENT_PATH,
   ROOT_PATH,
-  SEPARATOR,
-  fromStringToList
+  ROOT_PATTERN,
+  SEPARATOR
 }
 
 import scala.annotation.tailrec
 import scala.util.matching.Regex
 
-class Path(val listedPath: List[String], val base: String) {
-  def join(path: String): Path = {
-    val newListedPath: List[String] =
-      if (path.nonEmpty) listedPath ++ fromStringToList(path) else listedPath
-    new Path(newListedPath, base)
-  }
+class Path(val listedPath: List[String], val isRoot: Boolean) {
+  def join(path: String): Path = join(Path(path))
 
-  def getParent: Path = Path(listedPath.init, base)
+  def join(path: Path): Path =
+    if (path.isRoot) path
+    else Path(listedPath ++ path.listedPath, isRoot)
+
+  def getParent: Path = Path(listedPath.init, isRoot)
 
   def getLast: String = listedPath.last
 
   def getAbsolutePath: Path = {
-    assert(base == ROOT_PATH)
+    assert(isRoot)
     @tailrec
     def aux(newPath: List[String], next: List[String]): List[String] =
       next match {
@@ -36,12 +36,16 @@ class Path(val listedPath: List[String], val base: String) {
             case _            => aux(newPath :+ head, tail)
           }
       }
-    Path(aux(List(), listedPath), base)
+    Path(aux(List(), listedPath), isRoot)
   }
 
   override def toString: String =
-    listedPath.foldLeft(base)((a, b) =>
-      if (a != SEPARATOR) a + SEPARATOR + b else a + b
+    listedPath.foldLeft(if (isRoot) ROOT_PATH else CURRENT_PATH)((a, b) =>
+      a match {
+        case CURRENT_PATH => b
+        case ROOT_PATH    => a + b
+        case _            => a + SEPARATOR + b
+      }
     )
 }
 
@@ -52,14 +56,12 @@ object Path {
   val SEPARATOR = "/"
   val ROOT_PATTERN: Regex = s"$ROOT_PATH.*".r
 
-  def apply(listedPath: List[String], basePath: String): Path =
-    new Path(listedPath, basePath)
+  def apply(listedPath: List[String], isRoot: Boolean = false): Path =
+    new Path(listedPath, isRoot)
 
   def apply(string: String): Path = {
-    val basePath: String =
-      if (ROOT_PATTERN.matches(string) || string.isEmpty) ROOT_PATH
-      else CURRENT_PATH
-    Path(fromStringToList(string), basePath)
+    val isRoot: Boolean = ROOT_PATTERN matches string
+    Path(fromStringToList(string), isRoot)
   }
 
   def fromStringToList(string: String): List[String] =

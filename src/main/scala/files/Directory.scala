@@ -149,7 +149,7 @@ object Directory {
   val SEPARATOR = "/"
   val ROOT_PATH = "/"
 
-  def ROOT: Directory = Directory.empty(Path(""), "")
+  def ROOT: Directory = Directory.empty(Path(List(), isRoot = true), "")
 
   def empty(parentPath: Path, name: String): Directory =
     Directory(parentPath, name, List())
