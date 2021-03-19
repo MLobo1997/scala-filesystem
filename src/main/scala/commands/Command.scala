@@ -14,6 +14,7 @@ object Command {
   val CD = "cd"
   val PWD = "pwd"
   val TOUCH = "touch"
+  val RM = "rm"
 
   def from(input: String): Command = {
     val tokens: Array[String] = input.split(" ")
@@ -46,6 +47,12 @@ object Command {
         t match {
           case Array(_)       => incompleteCommand(TOUCH)
           case Array(_, name) => new Touch(name)
+          case _              => wrongNumberOfArgs(1)
+        }
+      case t @ Array(RM, _*) =>
+        t match {
+          case Array(_)       => incompleteCommand(RM)
+          case Array(_, name) => new Rm(Path(name))
           case _              => wrongNumberOfArgs(1)
         }
       case _ => new UnknownCommand

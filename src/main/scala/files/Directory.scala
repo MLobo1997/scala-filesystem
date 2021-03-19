@@ -3,6 +3,12 @@ package files
 
 import utils.Path
 
+import com.mlobo.files.Directory.{
+  listFullDirectoriesPath,
+  updateChainOfDirectories
+}
+import com.mlobo.filesystem.State
+
 import scala.annotation.tailrec
 import scala.util.{Failure, Success, Try}
 
@@ -11,6 +17,11 @@ class Directory(
     override val name: String,
     val contents: List[DirEntry]
 ) extends DirEntry(parentPath, name) {
+  def rmNewEntry(entryName: String): Try[Directory] =
+    if (contents.exists(_.name.equals(entryName)))
+      Success(withContents(contents.filterNot(_.name.equals(entryName))))
+    else
+      Failure(new RuntimeException(s"$entryName not found"))
 
   def hasEntry(name: String): Boolean =
     contents.exists((entry: DirEntry) => entry.name.equals(name))
@@ -66,47 +77,19 @@ class Directory(
     aux(Success(this), relativePath.listedPath)
   }
 
+  def removeEntryRelativePath(path: Path): Try[Directory] = {
+    val reversedListOfDirsAttempt: Try[List[Directory]] =
+      listFullDirectoriesPath(this, path.getParent.listedPath, List())
+
+    reversedListOfDirsAttempt.flatMap(reversedListOfDirs =>
+      updateChainOfDirectories(
+        reversedListOfDirs.tail,
+        reversedListOfDirs.head.rmNewEntry(path.getLast)
+      )
+    )
+  }
+
   def addEntryInRelativePath(newEntry: DirEntry): Try[Directory] = {
-    @tailrec
-    def listFullDirectoriesPath(
-        currentDir: Directory,
-        path: List[String],
-        fullEntriesPath: List[Directory]
-    ): Try[List[Directory]] = {
-      path match {
-        case Nil | "." :: Nil => Success(currentDir :: fullEntriesPath)
-        case ::(nextDir, pathTail) =>
-          val nextPath: Try[DirEntry] =
-            currentDir.getEntry(nextDir)
-          nextPath match {
-            case Success(directory: Directory) =>
-              listFullDirectoriesPath(
-                directory,
-                pathTail,
-                currentDir :: fullEntriesPath
-              )
-            case Success(entry: DirEntry) =>
-              Failure(new RuntimeException(s"${entry.name} is not a directory"))
-            case Failure(e) => Failure(e)
-          }
-      }
-    }
-
-    @tailrec
-    def updateChainOfDirectories(
-        reversedListOfDirs: List[Directory],
-        dirAccumulator: Try[Directory]
-    ): Try[Directory] =
-      (reversedListOfDirs, dirAccumulator) match {
-        case (_, Failure(exception)) => Failure(exception)
-        case (Nil, _)                => dirAccumulator
-        case (::(dir, next), Success(acc)) =>
-          updateChainOfDirectories(
-            next,
-            dir.updateEntry(acc)
-          )
-      }
-
     val reversedListOfDirsAttempt: Try[List[Directory]] =
       listFullDirectoriesPath(this, newEntry.parentPath.listedPath, List())
 
@@ -159,4 +142,44 @@ object Directory {
       contents: List[DirEntry]
   ): Directory =
     new Directory(parentPath, name, contents)
+
+  @tailrec
+  private def listFullDirectoriesPath(
+      currentDir: Directory,
+      path: List[String],
+      fullEntriesPath: List[Directory]
+  ): Try[List[Directory]] = {
+    path match {
+      case Nil | "." :: Nil => Success(currentDir :: fullEntriesPath)
+      case ::(nextDir, pathTail) =>
+        val nextPath: Try[DirEntry] =
+          currentDir.getEntry(nextDir)
+        nextPath match {
+          case Success(directory: Directory) =>
+            listFullDirectoriesPath(
+              directory,
+              pathTail,
+              currentDir :: fullEntriesPath
+            )
+          case Success(entry: DirEntry) =>
+            Failure(new RuntimeException(s"${entry.name} is not a directory"))
+          case Failure(e) => Failure(e)
+        }
+    }
+  }
+
+  @tailrec
+  private def updateChainOfDirectories(
+      reversedListOfDirs: List[Directory],
+      dirAccumulator: Try[Directory]
+  ): Try[Directory] =
+    (reversedListOfDirs, dirAccumulator) match {
+      case (_, Failure(exception)) => Failure(exception)
+      case (Nil, _)                => dirAccumulator
+      case (::(dir, next), Success(acc)) =>
+        updateChainOfDirectories(
+          next,
+          dir.updateEntry(acc)
+        )
+    }
 }
