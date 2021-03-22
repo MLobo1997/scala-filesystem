@@ -1,13 +1,8 @@
 package com.mlobo
 package files
 
+import files.Directory.{listFullDirectoriesPath, updateChainOfDirectories}
 import utils.Path
-
-import com.mlobo.files.Directory.{
-  listFullDirectoriesPath,
-  updateChainOfDirectories
-}
-import com.mlobo.filesystem.State
 
 import scala.annotation.tailrec
 import scala.util.{Failure, Success, Try}
@@ -89,14 +84,17 @@ class Directory(
     )
   }
 
-  def addEntryInRelativePath(newEntry: DirEntry): Try[Directory] = {
+  def addEntryInRelativePath(
+      newEntry: DirEntry,
+      update: Boolean = false
+  ): Try[Directory] = {
     val reversedListOfDirsAttempt: Try[List[Directory]] =
       listFullDirectoriesPath(this, newEntry.parentPath.listedPath, List())
-
     reversedListOfDirsAttempt.flatMap(reversedListOfDirs =>
       updateChainOfDirectories(
         reversedListOfDirs.tail,
-        reversedListOfDirs.head.addNewEntry(newEntry)
+        if (update) reversedListOfDirs.head.updateEntry(newEntry)
+        else reversedListOfDirs.head.addNewEntry(newEntry)
       )
     )
   }
@@ -105,7 +103,7 @@ class Directory(
     if (!contents.exists(_.name == newEntry.name)) {
       Success(withContents(newEntry :: contents))
     } else {
-      Failure(new RuntimeException(s"Entry name $name"))
+      Failure(new RuntimeException(s"Entry name ${newEntry.name}"))
     }
 
   def withContents(newContents: List[DirEntry]): Directory =
@@ -113,17 +111,18 @@ class Directory(
 
   def updateEntry(newEntry: DirEntry): Try[Directory] = {
     val maybeEntry = getEntry(newEntry.name)
-    maybeEntry.flatMap {
-      case entry if entry.getClass.equals(newEntry.getClass) =>
+    maybeEntry.flatMap(entry => {
+      if (entry.getClass.equals(newEntry.getClass)) {
         val newContents = newEntry :: contents.filterNot(entry.equals)
         Success(Directory(parentPath, name, newContents))
-      case entry =>
+      } else {
         Failure(
           new RuntimeException(
             s"You are trying to replace a ${entry.getClass} with a ${newEntry.getClass}"
           )
         )
-    }
+      }
+    })
   }
 }
 

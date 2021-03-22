@@ -2,8 +2,7 @@ package com.mlobo
 package filesystem
 
 import files.{DirEntry, Directory}
-
-import com.mlobo.utils.Path
+import utils.Path
 
 import scala.util.{Failure, Success, Try}
 
@@ -34,9 +33,9 @@ class State(val root: Directory, val wd: Directory, val output: String) {
   def removeEntryFromDirectoryTree(path: Path): State =
     updateDirectoryTree(root.removeEntryRelativePath(path), s"Removed $path")
 
-  def addEntryToDirectoryTree(entry: DirEntry): State =
+  def addEntryToDirectoryTree(entry: DirEntry, update: Boolean = false): State =
     updateDirectoryTree(
-      root.addEntryInRelativePath(entry),
+      root.addEntryInRelativePath(entry, update),
       s"Added ${entry.name}"
     )
 }
