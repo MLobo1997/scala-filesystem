@@ -16,6 +16,7 @@ object Command {
   val TOUCH = "touch"
   val RM = "rm"
   val ECHO = "echo"
+  val CAT = "cat"
 
   def from(input: String): Command = {
     val tokens: Array[String] = input.split(" ")
@@ -57,7 +58,13 @@ object Command {
           case _              => wrongNumberOfArgs(1)
         }
       case Array(ECHO, args @ _*) => new Echo(args.toArray)
-      case _                      => new UnknownCommand
+      case t @ Array(CAT, _*) =>
+        t match {
+          case Array(_)       => incompleteCommand(CAT)
+          case Array(_, name) => new Cat(Path(name))
+          case _              => wrongNumberOfArgs(1)
+        }
+      case _ => new UnknownCommand
     }
   }
 
